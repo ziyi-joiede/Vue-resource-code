@@ -1,3 +1,5 @@
+const { type } = require("os");
+
 let callbakcs = [];
 let pending = false;
 
@@ -17,16 +19,26 @@ microtimerFunc = () => {
 }
 
 let nextTick = function(cb, ctx) {
-    if (cb) {
-        callbakcs.push(() => {
-            cb.call(ctx);
-        })
-    }
-
-    // pending 为 false 时把 microTimerFunction 添加到微任务队中
-    // 等待事件循环
+    let _resolve;
+    callbakcs.push(
+            () => {
+                if (cb) {
+                    cb.call(ctx);
+                } else if (_resolve) {
+                    _resolve(ctx);
+                }
+            }
+        )
+        // pending 为 false 时把 microTimerFunction 添加到微任务队中
+        // 等待事件循环
     if (!pending) {
         pending = true;
         microtimerFunc();
+    }
+
+    if (!cb && typeof Promise !== 'undefined') {
+        return new Promise((resolve, reject) => {
+            _resolve = resolve;
+        });
     }
 }
