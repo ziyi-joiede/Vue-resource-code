@@ -1,3 +1,3 @@
-function Vue() { }
+function Vue() {}
 
 export default Vue;
